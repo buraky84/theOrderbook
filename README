@@ -1,0 +1,50 @@
+Project file structure
+==========================
+index.js => App registration main file
+App.tsx ==> Starter Component covered with Redux Provider & SafeAreaView
+
+/src => main source folder
+/src/assets => images and all other assets (currently empty).
+/src/config => global const data is stored.
+/src/redux => redux, redux saga, reducer configuration and functions are placed.
+/src/services => Service files where we can import from multiple destination or run as a single service for the whole app.
+/src/ui => Customer faced UI designs and re-usable components.
+/src/util => Util, helper methods we can re-use globally over the app.
+
+Orderbook Algorithm & Project Architecture
+==========================
+Due to heavy websocket traffic, calculating orderbook in realtime for every websocket message is very costy and almost not possible which will cause UI freeze.
+The solution is buffering the websocket message in an internal Map type and batch updating the orderbook with intervals(i used 1500 ms intervals which looks good to me.)
+Map type is used to store websocket buffered messages because Maps are keeping key insertion order but Object type is not! Keeping the same order helps me update orderbook store synchronous.
+For buffering, Map type of data is choosen instead of Array type of data because Map keys are unique and meant to be faster than array operation.
+
+While batch updating redux store orderbook object
+1) If there is an existing key => we update the orderbook changing the volume.
+2) If there is a delete => we delete from the orderbook.
+3) If there is an insertion
+   a) If insertion to bids, also always check and delete <= prices in the asks table.
+   b) If insertion to asks, also always check and delete >= prices in the bids table.
+
+Websocket
+==========================
+The websocket library i have used has built in connection recovery. Re-connects in 1 second after connection status goes Closed.
+The websocket message processing is covered with try-catch blocks as well as null/undefined checks.
+
+Below tasks also completed for the application
+==========================
+Redux is used as the store. Redux-saga also integrated to perform some synchronous tasks.
+IPAD & Different Iphone screen sizes has been tested. (Portrait only mode activated, design checks done)
+Android has been tested. (Portrait only mode activated, design checks done, missing icon font has been installed)
+Linter activated and coding rules applied.
+Typescript is activated and most of types are created.
+Since a single page application is requested, i did not integrate react navigation library. But could be integrated easily.
+Some functional tests integrated for util type of functions (Util_Function_Tests.tsx)
+Some UI tests integrated for orderbook page (Util_Function_Tests.tsx)
+
+What could i do more if i had more time
+==========================
+I could separate development, staging, release versions of the app & define Environment file config for each version with react-native-config file.
+I could integrate crashlytics / sentry for catching any possible crashes, integrate logly to catch and store customer log stream.
+I could create app logo, splash screens etc.
+And more... :)
+
